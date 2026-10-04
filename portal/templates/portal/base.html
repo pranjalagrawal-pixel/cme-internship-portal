@@ -1,0 +1,16 @@
+{% load static %}<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#101d35">
+<meta name="description" content="CME Internship & Training Portal — a managed workspace for interns, evaluators and administrators.">
+<title>{% block title %}CME Internship & Training Portal{% endblock %}</title><link rel="stylesheet" href="{% static 'portal/styles.css' %}"></head><body>
+{% if user.is_authenticated %}<div class="app-shell">
+<aside class="sidebar"><a class="brand" href="{% url 'dashboard' %}"><img class="brand-logo" src="{% static 'portal/cme-logo-mark.png' %}" alt="Concept Made Easy Classes logo"><span><b>CME</b><small>INTERNSHIP PORTAL</small></span></a>
+<div class="side-label">WORKSPACE</div><nav class="side-nav" aria-label="Main navigation">
+<a href="{% url 'dashboard' %}">▦ <span>Dashboard</span></a>{% if user.is_superuser or user.profile.role == 'CORE_TEAM' or user.profile.role == 'FOUNDER' %}<a href="{% url 'core_team_dashboard' %}">✦ <span>Core Team</span></a>{% endif %}<a href="{% url 'programs' %}">✦ <span>Internship programs</span></a><a href="{% url 'tasks' %}">✓ <span>Tasks & submissions</span></a><a href="{% url 'attendance' %}">◷ <span>Attendance</span></a><a href="{% url 'announcements' %}">◈ <span>Announcements</span></a><a href="{% url 'certificates' %}">✧ <span>Certificates</span></a>{% if user.is_superuser %}<a href="{% url 'admin:index' %}">⚙ <span>Admin console</span></a>{% endif %}
+</nav><div class="sidebar-bottom"><div class="help-card"><div class="help-icon">✦</div><b>Keep growing.</b><p>Small steps build meaningful experience.</p></div><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="logout-link" type="submit">↗ <span>Sign out</span></button></form></div></aside>
+<main class="main-area"><header class="topbar"><div class="breadcrumb">CME <span>/</span> {% block breadcrumb %}Workspace{% endblock %}</div><div class="top-user"><div class="avatar">{{ user.first_name|default:user.username|slice:':1'|upper }}</div><div><b>{{ user.get_full_name|default:user.username }}</b><small>{% if user.is_superuser %}Administrator{% else %}{{ user.profile.get_role_display|default:'Portal member' }}{% endif %}</small></div></div></header>
+{% else %}<div class="public-shell"><header class="public-topbar"><a class="brand public-brand" href="{% url 'home' %}"><img class="brand-logo" src="{% static 'portal/cme-logo-mark.png' %}" alt="Concept Made Easy Classes logo"><span><b>CME</b><small>INTERNSHIP & TRAINING</small></span></a><a class="btn btn-dark" href="{% url 'login' %}">Member sign in <span>→</span></a></header><main class="public-main">
+{% endif %}
+<div class="{% if user.is_authenticated %}content{% else %}public-content{% endif %}">{% if messages %}{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}{% endif %}{% block content %}{% endblock %}<footer class="footer {% if not user.is_authenticated %}public-footer{% endif %}">© {% now "Y" %} Concept Made Easy Classes <span>Managed access · Learning · Progress</span></footer></div>
+{% if user.is_authenticated %}</main></div>{% else %}</main></div>{% endif %}
+</body></html>

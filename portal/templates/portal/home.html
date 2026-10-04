@@ -1,0 +1,20 @@
+{% extends 'portal/base.html' %}{% load static %}
+{% block title %}CME | Internship & Training Workspace{% endblock %}
+{% block content %}
+<section class="public-hero">
+  <div class="hero-badge"><span class="dot"></span> CME INTERNSHIP & TRAINING</div>
+  <h1>Turn learning into<br><em>real-world experience.</em></h1>
+  <p class="hero-lead">A structured workspace to practise skills, complete meaningful tasks, receive evaluator feedback, and track your progress through your CME programme.</p>
+  <div class="hero-actions"><a class="btn btn-gold" href="{% url 'login' %}">Member sign in <span>→</span></a><a class="text-link" href="#how">Explore the programme ↘</a></div>
+  <div class="hero-note"><span class="note-icon">✦</span><span><b>Learn by doing</b><small>Assigned tasks · Evaluation · Progress tracking</small></span></div>
+  <div class="hero-art" aria-hidden="true"><div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div><div class="art-center"><img src="{% static 'portal/cme-logo-mark.png' %}" alt="" class="hero-logo-mark"><small>GROW WITH PURPOSE</small></div><div class="float-card card-a"><span>01</span><b>Learn</b><small>Build your foundation</small></div><div class="float-card card-b"><span>02</span><b>Build</b><small>Apply your skills</small></div><div class="float-card card-c"><span>03</span><b>Progress</b><small>Track your growth</small></div></div>
+</section>
+<section class="public-section" id="how"><div class="section-kicker">A CLEAR PATH FORWARD</div><h2>Experience that moves<br>you <em>forward.</em></h2>
+  <div class="feature-grid">
+    <article class="feature-card"><div class="feature-number">01</div><div class="feature-symbol">↗</div><h3>Structured tasks</h3><p>View programme tasks, deadlines, expectations, and submission instructions in one place.</p></article>
+    <article class="feature-card"><div class="feature-number">02</div><div class="feature-symbol">◎</div><h3>Evaluator feedback</h3><p>Track review status, read feedback, and understand what needs improvement.</p></article>
+    <article class="feature-card"><div class="feature-number">03</div><div class="feature-symbol">✧</div><h3>Progress records</h3><p>Access attendance, announcements, points, and certificate status linked to your account.</p></article>
+  </div>
+  <div class="access-note"><span class="access-note-icon">▣</span><div><b>Private, administrator-managed access</b><p>There is no public sign-up or self-registration. CME administrators create accounts for selected interns, HR/evaluators, and authorised team members. Use the credentials shared with you by the CME team.</p></div></div>
+</section>
+{% endblock %}

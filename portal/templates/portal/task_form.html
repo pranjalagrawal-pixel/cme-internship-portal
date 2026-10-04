@@ -1,0 +1,12 @@
+{% extends 'portal/base.html' %}
+{% block title %}{{ page_title }} | CME Portal{% endblock %}
+{% block breadcrumb %}Tasks / {{ page_title }}{% endblock %}
+{% block content %}
+<a class="back-link" href="{% url 'tasks' %}">← Back to tasks</a>
+<div class="form-page"><div class="section-kicker">CONTROLLED TASK MANAGEMENT</div><h1>{{ page_title }}</h1><p class="muted">Set clear requirements, the maximum score, and who can see this task.</p>
+<form method="post" class="panel submission-form task-editor">{% csrf_token %}
+{% for field in form %}<div class="field-group"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<small class="field-help">{{ field.help_text }}</small>{% endif %}{% for error in field.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>{% endfor %}
+{% if form.non_field_errors %}{% for error in form.non_field_errors %}<small class="field-error">{{ error }}</small>{% endfor %}{% endif %}
+<div class="form-actions"><button class="btn btn-dark" type="submit">{{ button_label }} →</button><a class="btn btn-light" href="{% url 'tasks' %}">Cancel</a></div>
+</form></div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'portal/base.html' %}
+{% block title %}Tasks | CME Portal{% endblock %}
+{% block breadcrumb %}Tasks{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><div class="section-kicker">LEARN BY DOING</div><h1>Tasks & submissions</h1><p>Review expectations, submit your work, and follow the review status.</p></div>
+  {% if can_manage_tasks %}<a class="btn btn-dark" href="{% url 'task_create' %}">+ Create task</a>{% endif %}
+</div>
+{% if can_manage_tasks %}<div class="access-note"><div class="access-note-icon">✦</div><div><b>Task management access enabled</b><p>Only the Founder, Intern Head, and Administrator can create/edit tasks, set maximum points, review submissions, and award points. Other team members can view published tasks; interns can submit their work.</p></div></div>{% endif %}
+<div class="panel table-panel" style="margin-top:18px"><table><thead><tr><th>Task</th><th>Priority</th><th>Due date</th><th>Max points</th><th>Status / Action</th></tr></thead><tbody>
+{% for task in tasks %}<tr>
+<td><b>{{ task.title }}</b><small class="cell-sub">{{ task.domain|default:'General' }} · {{ task.description|truncatechars:90 }}</small></td>
+<td><span class="priority priority-{{ task.priority|lower }}">{{ task.get_priority_display }}</span></td>
+<td>{{ task.due_date|date:'d M Y'|default:'No deadline' }}</td><td>{{ task.points }}</td>
+<td>{% if role == 'INTERN' %}<a class="btn btn-small btn-gold" href="{% url 'submit_task' task.id %}">View & submit →</a>{% elif can_manage_tasks %}<div class="action-links"><a class="text-link" href="{% url 'task_edit' task.id %}">Edit task</a></div>{% else %}<span class="muted">View only</span>{% endif %}</td>
+</tr>{% empty %}<tr><td colspan="5" class="empty-state">No tasks to show yet.</td></tr>{% endfor %}
+</tbody></table></div>
+{% if can_manage_tasks %}
+<div class="section-row"><div><div class="section-kicker">INCOMING WORK</div><h2>Intern submissions</h2></div><span class="muted">Review and award points</span></div>
+<div class="panel table-panel"><table><thead><tr><th>Intern</th><th>Task</th><th>Submitted</th><th>Status</th><th>Points</th><th>Action</th></tr></thead><tbody>
+{% for s in submissions %}<tr><td><b>{{ s.intern.get_full_name|default:s.intern.username }}</b><small class="cell-sub">{{ s.intern.profile.intern_id|default:s.intern.username }}</small></td><td>{{ s.task.title }}</td><td>{{ s.submitted_at|date:'d M Y, H:i' }}</td><td><span class="status status-{{ s.status|lower }}">{{ s.get_status_display }}</span></td><td>{{ s.awarded_points }} / {{ s.task.points }}</td><td><a class="btn btn-small btn-gold" href="{% url 'submission_review' s.id %}">Review & award →</a></td></tr>
+{% empty %}<tr><td colspan="6" class="empty-state">No submissions received yet.</td></tr>{% endfor %}
+</tbody></table></div>
+{% elif role == 'INTERN' %}
+<div class="section-row"><div><div class="section-kicker">YOUR WORK</div><h2>Submission history</h2></div></div><div class="panel table-panel"><table><thead><tr><th>Task</th><th>Submitted</th><th>Status</th><th>Points</th><th>Feedback</th></tr></thead><tbody>{% for s in submissions %}<tr><td>{{ s.task.title }}</td><td>{{ s.submitted_at|date:'d M Y' }}</td><td><span class="status status-{{ s.status|lower }}">{{ s.get_status_display }}</span></td><td>{{ s.awarded_points }}</td><td>{{ s.evaluator_feedback|default:'—'|truncatechars:90 }}</td></tr>{% empty %}<tr><td colspan="5" class="empty-state">You have not submitted any tasks yet.</td></tr>{% endfor %}</tbody></table></div>
+{% endif %}
+{% endblock %}
