@@ -1,8 +1,9 @@
-
 from pathlib import Path
 import os
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 # --------------------------------------------------
 # SECURITY
@@ -13,10 +14,13 @@ SECRET_KEY = os.getenv(
     "dev-only-change-this-key-before-deployment"
 )
 
-DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() == "true"
+DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
+
 
 DEFAULT_ALLOWED_HOSTS = (
-    "127.0.0.1,localhost,cme-internship-portal.vercel.app"
+    "127.0.0.1,"
+    "localhost,"
+    "cme-internship-portal.vercel.app"
 )
 
 ALLOWED_HOSTS = [
@@ -27,6 +31,7 @@ ALLOWED_HOSTS = [
     ).split(",")
     if host.strip()
 ]
+
 
 DEFAULT_CSRF_ORIGINS = (
     "https://cme-internship-portal.vercel.app"
@@ -40,6 +45,7 @@ CSRF_TRUSTED_ORIGINS = [
     ).split(",")
     if origin.strip()
 ]
+
 
 # --------------------------------------------------
 # APPLICATIONS
@@ -55,6 +61,7 @@ INSTALLED_APPS = [
     "portal",
 ]
 
+
 # --------------------------------------------------
 # MIDDLEWARE
 # --------------------------------------------------
@@ -69,7 +76,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+
 ROOT_URLCONF = "cme_portal.urls"
+
 
 # --------------------------------------------------
 # TEMPLATES
@@ -90,20 +99,42 @@ TEMPLATES = [
     },
 ]
 
+
+# --------------------------------------------------
+# WSGI
+# --------------------------------------------------
+
 WSGI_APPLICATION = "cme_portal.wsgi.application"
+
 
 # --------------------------------------------------
 # DATABASE
-# SQLite is for local development only.
-# Configure PostgreSQL for production data.
+# --------------------------------------------------
+# Production:
+#   Uses Neon PostgreSQL through DATABASE_URL.
+#
+# Local development:
+#   Falls back to SQLite if DATABASE_URL is not present.
 # --------------------------------------------------
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+
 
 # --------------------------------------------------
 # PASSWORD VALIDATION
@@ -136,22 +167,30 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 # --------------------------------------------------
 # INTERNATIONALIZATION
 # --------------------------------------------------
 
 LANGUAGE_CODE = "en-in"
+
 TIME_ZONE = "Asia/Kolkata"
+
 USE_I18N = True
+
 USE_TZ = True
+
 
 # --------------------------------------------------
 # STATIC FILES
 # --------------------------------------------------
 
 STATIC_URL = "/static/"
+
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
 STATICFILES_DIRS = []
+
 
 # --------------------------------------------------
 # DEFAULT MODEL
@@ -159,19 +198,24 @@ STATICFILES_DIRS = []
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
 # --------------------------------------------------
 # LOGIN
 # --------------------------------------------------
 
 LOGIN_URL = "login"
+
 LOGIN_REDIRECT_URL = "dashboard"
+
 LOGOUT_REDIRECT_URL = "home"
+
 
 # --------------------------------------------------
 # SESSION AND HTTPS SECURITY
 # --------------------------------------------------
 
 SESSION_COOKIE_HTTPONLY = True
+
 CSRF_COOKIE_HTTPONLY = True
 
 SECURE_PROXY_SSL_HEADER = (
@@ -180,4 +224,5 @@ SECURE_PROXY_SSL_HEADER = (
 )
 
 SESSION_COOKIE_SECURE = not DEBUG
+
 CSRF_COOKIE_SECURE = not DEBUG
