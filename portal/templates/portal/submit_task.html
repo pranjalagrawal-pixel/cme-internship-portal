@@ -1,1 +1,228 @@
-{% extends 'portal/base.html' %}{% block title %}Submit task | CME Portal{% endblock %}{% block breadcrumb %}Tasks / Submit{% endblock %}{% block content %}<a class="back-link" href="{% url 'tasks' %}">← Back to tasks</a><div class="form-page"><div class="section-kicker">TASK DETAILS</div><h1>{{ task.title }}</h1><div class="task-meta"><span class="priority priority-{{ task.priority|lower }}">{{ task.get_priority_display }} priority</span><span>{{ task.points }} points</span><span>Due {{ task.due_date|date:'d M Y'|default:'No deadline' }}</span></div><div class="panel task-description"><h3>Instructions</h3><p>{{ task.description|linebreaksbr }}</p></div><form method="post" class="panel submission-form">{% csrf_token %}<h2>Submit your work</h2><p class="muted">Add a short explanation and optionally link to a document, repository, or project.</p><label for="id_response_text">Work summary</label>{{ form.response_text }}{% for e in form.response_text.errors %}<small class="field-error">{{ e }}</small>{% endfor %}<label for="id_attachment_url">Attachment or project link (optional)</label>{{ form.attachment_url }}{% for e in form.attachment_url.errors %}<small class="field-error">{{ e }}</small>{% endfor %}<button class="btn btn-dark" type="submit">Submit for review →</button></form></div>{% endblock %}
+{% extends 'portal/base.html' %}
+
+{% block title %}Submit task | CME Portal{% endblock %}
+
+{% block breadcrumb %}Tasks / Submit{% endblock %}
+
+{% block content %}
+
+<a class="back-link" href="{% url 'tasks' %}">
+  ← Back to tasks
+</a>
+
+<div class="form-page">
+
+  <div class="section-kicker">TASK DETAILS</div>
+
+  <h1>
+    {% if is_revision %}
+      Resubmit: {{ task.title }}
+    {% else %}
+      {{ task.title }}
+    {% endif %}
+  </h1>
+
+
+  <!-- Task meta -->
+  <div class="task-meta">
+
+    <span class="priority priority-{{ task.priority|lower }}">
+      {{ task.get_priority_display }} priority
+    </span>
+
+    <span>
+      {{ task.points }} points
+    </span>
+
+    <span>
+      Due
+      {{ task.due_date|date:'d M Y'|default:'No deadline' }}
+    </span>
+
+  </div>
+
+
+  <!-- Task instructions -->
+  <div class="panel task-description">
+
+    <h3>Instructions</h3>
+
+    <p>
+      {{ task.description|linebreaksbr }}
+    </p>
+
+  </div>
+
+
+  <!-- Revision feedback -->
+  {% if is_revision and existing_submission.evaluator_feedback %}
+
+  <div class="access-note" style="margin-bottom:18px;">
+
+    <div class="access-note-icon">
+      !
+    </div>
+
+    <div>
+
+      <b>Revision requested by evaluator</b>
+
+      <p>
+        {{ existing_submission.evaluator_feedback|linebreaksbr }}
+      </p>
+
+    </div>
+
+  </div>
+
+  {% endif %}
+
+
+  <!-- Submission form -->
+  <form
+    method="post"
+    enctype="multipart/form-data"
+    class="panel submission-form"
+  >
+
+    {% csrf_token %}
+
+
+    <h2>
+      {% if is_revision %}
+        Resubmit your work
+      {% else %}
+        Submit your work
+      {% endif %}
+    </h2>
+
+    <p class="muted">
+      Add a short explanation of your work and optionally provide
+      a project link or upload your submission file.
+    </p>
+
+
+    <!-- Non-field errors -->
+    {% if form.non_field_errors %}
+
+      {% for error in form.non_field_errors %}
+
+        <small class="field-error">
+          {{ error }}
+        </small>
+
+      {% endfor %}
+
+    {% endif %}
+
+
+    <!-- Work summary -->
+    <label for="id_response_text">
+      Work summary
+    </label>
+
+    {{ form.response_text }}
+
+    {% for e in form.response_text.errors %}
+
+      <small class="field-error">
+        {{ e }}
+      </small>
+
+    {% endfor %}
+
+
+    <!-- External link -->
+    <label for="id_attachment_url">
+      Attachment or project link
+      <span class="muted">(optional)</span>
+    </label>
+
+    {{ form.attachment_url }}
+
+    <small class="muted">
+      You can add a GitHub repository, Google Drive,
+      Canva, live website, Figma, or other project link.
+    </small>
+
+    {% for e in form.attachment_url.errors %}
+
+      <small class="field-error">
+        {{ e }}
+      </small>
+
+    {% endfor %}
+
+
+    <!-- File upload -->
+    <label for="id_attachment">
+      Upload file
+      <span class="muted">(optional)</span>
+    </label>
+
+    {{ form.attachment }}
+
+    <small class="muted">
+      Upload your report, presentation, project file,
+      image, ZIP, or other supported file.
+    </small>
+
+    {% for e in form.attachment.errors %}
+
+      <small class="field-error">
+        {{ e }}
+      </small>
+
+    {% endfor %}
+
+
+    <!-- Existing file when revising -->
+    {% if existing_submission and existing_submission.attachment %}
+
+      <div class="access-note" style="margin-top:16px;">
+
+        <div class="access-note-icon">
+          ↗
+        </div>
+
+        <div>
+
+          <b>Previous uploaded file</b>
+
+          <p>
+            <a
+              class="text-link"
+              href="{{ existing_submission.attachment.url }}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open previous file →
+            </a>
+          </p>
+
+        </div>
+
+      </div>
+
+    {% endif %}
+
+
+    <!-- Submit button -->
+    <button
+      class="btn btn-dark"
+      type="submit"
+    >
+
+      {% if is_revision %}
+        Resubmit for review →
+      {% else %}
+        Submit for review →
+      {% endif %}
+
+    </button>
+
+  </form>
+
+</div>
+
+{% endblock %}

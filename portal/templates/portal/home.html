@@ -1,20 +1,1154 @@
-{% extends 'portal/base.html' %}{% load static %}
+{% extends 'portal/base.html' %}
+{% load static %}
+
 {% block title %}CME | Internship & Training Workspace{% endblock %}
+
 {% block content %}
-<section class="public-hero">
-  <div class="hero-badge"><span class="dot"></span> CME INTERNSHIP & TRAINING</div>
-  <h1>Turn learning into<br><em>real-world experience.</em></h1>
-  <p class="hero-lead">A structured workspace to practise skills, complete meaningful tasks, receive evaluator feedback, and track your progress through your CME programme.</p>
-  <div class="hero-actions"><a class="btn btn-gold" href="{% url 'login' %}">Member sign in <span>→</span></a><a class="text-link" href="#how">Explore the programme ↘</a></div>
-  <div class="hero-note"><span class="note-icon">✦</span><span><b>Learn by doing</b><small>Assigned tasks · Evaluation · Progress tracking</small></span></div>
-  <div class="hero-art" aria-hidden="true"><div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div><div class="art-center"><img src="{% static 'portal/cme-logo-mark.png' %}" alt="" class="hero-logo-mark"><small>GROW WITH PURPOSE</small></div><div class="float-card card-a"><span>01</span><b>Learn</b><small>Build your foundation</small></div><div class="float-card card-b"><span>02</span><b>Build</b><small>Apply your skills</small></div><div class="float-card card-c"><span>03</span><b>Progress</b><small>Track your growth</small></div></div>
-</section>
-<section class="public-section" id="how"><div class="section-kicker">A CLEAR PATH FORWARD</div><h2>Experience that moves<br>you <em>forward.</em></h2>
-  <div class="feature-grid">
-    <article class="feature-card"><div class="feature-number">01</div><div class="feature-symbol">↗</div><h3>Structured tasks</h3><p>View programme tasks, deadlines, expectations, and submission instructions in one place.</p></article>
-    <article class="feature-card"><div class="feature-number">02</div><div class="feature-symbol">◎</div><h3>Evaluator feedback</h3><p>Track review status, read feedback, and understand what needs improvement.</p></article>
-    <article class="feature-card"><div class="feature-number">03</div><div class="feature-symbol">✧</div><h3>Progress records</h3><p>Access attendance, announcements, points, and certificate status linked to your account.</p></article>
-  </div>
-  <div class="access-note"><span class="access-note-icon">▣</span><div><b>Private, administrator-managed access</b><p>There is no public sign-up or self-registration. CME administrators create accounts for selected interns, HR/evaluators, and authorised team members. Use the credentials shared with you by the CME team.</p></div></div>
-</section>
+
+<style>
+/* =========================================================
+   CME HOME — PREMIUM LANDING PAGE
+   ========================================================= */
+
+.public-main:has(.cme-home) {
+    width: min(1440px, calc(100% - 56px)) !important;
+    max-width: none !important;
+    margin: 0 auto !important;
+}
+
+.public-content:has(.cme-home) {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.cme-home {
+    width: 100%;
+    color: #101828;
+}
+
+/* ---------- HERO ---------- */
+
+.cme-hero {
+    position: relative;
+    min-height: 650px;
+    display: grid;
+    grid-template-columns: 1.05fr .95fr;
+    align-items: center;
+    gap: 70px;
+    padding: 72px 48px 80px;
+    overflow: hidden;
+    border-bottom: 1px solid #e8edf3;
+    background:
+        radial-gradient(
+            circle at 88% 18%,
+            rgba(42, 96, 220, .12),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 10% 90%,
+            rgba(231, 185, 79, .09),
+            transparent 28%
+        ),
+        linear-gradient(
+            135deg,
+            #ffffff 0%,
+            #f9fbff 55%,
+            #f1f5fc 100%
+        );
+}
+
+.cme-hero::before {
+    content: "";
+    position: absolute;
+    width: 520px;
+    height: 520px;
+    right: -180px;
+    top: -190px;
+    border-radius: 50%;
+    border: 1px solid rgba(31, 94, 255, .09);
+    box-shadow:
+        0 0 0 70px rgba(31, 94, 255, .025),
+        0 0 0 140px rgba(31, 94, 255, .018);
+    pointer-events: none;
+}
+
+.cme-hero::after {
+    content: "";
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    left: -260px;
+    bottom: -260px;
+    border-radius: 50%;
+    background: rgba(231, 185, 79, .07);
+    filter: blur(10px);
+    pointer-events: none;
+}
+
+.cme-hero-copy {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+}
+
+.cme-eyebrow {
+    width: fit-content;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 23px;
+    padding: 8px 13px;
+    border: 1px solid #dce5f2;
+    border-radius: 999px;
+    background: rgba(255,255,255,.78);
+    color: #315da8;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .13em;
+}
+
+.cme-eyebrow-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #e7b94f;
+    box-shadow: 0 0 0 5px rgba(231,185,79,.12);
+}
+
+.cme-hero h1 {
+    margin: 0;
+    color: #071426;
+    font-size: clamp(48px, 5.4vw, 78px);
+    line-height: .99;
+    letter-spacing: -.065em;
+    font-weight: 850;
+}
+
+.cme-hero h1 em {
+    color: #245bd6;
+    font-style: normal;
+}
+
+.cme-hero-lead {
+    max-width: 650px;
+    margin: 25px 0 30px;
+    color: #667085;
+    font-size: 16px;
+    line-height: 1.75;
+}
+
+.cme-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.cme-primary-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 0 20px;
+    border-radius: 11px;
+    background: #071426;
+    color: #fff !important;
+    text-decoration: none !important;
+    font-size: 13px;
+    font-weight: 800;
+    box-shadow: 0 12px 25px rgba(7,20,38,.17);
+    transition: .2s ease;
+}
+
+.cme-primary-btn:hover {
+    transform: translateY(-2px);
+    background: #102744;
+    box-shadow: 0 16px 32px rgba(7,20,38,.23);
+}
+
+.cme-secondary-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 48px;
+    padding: 0 18px;
+    border-radius: 11px;
+    color: #315da8 !important;
+    text-decoration: none !important;
+    font-size: 13px;
+    font-weight: 800;
+    transition: .2s ease;
+}
+
+.cme-secondary-btn:hover {
+    background: #edf3ff;
+}
+
+/* ---------- HERO TRUST ---------- */
+
+.cme-trust-row {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    margin-top: 38px;
+}
+
+.cme-trust-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.cme-trust-item strong {
+    color: #172033;
+    font-size: 12px;
+}
+
+.cme-trust-item span {
+    color: #8a94a6;
+    font-size: 10px;
+}
+
+.cme-trust-divider {
+    width: 1px;
+    height: 28px;
+    background: #dfe5ed;
+}
+
+/* ---------- HERO VISUAL ---------- */
+
+.cme-visual {
+    position: relative;
+    min-height: 490px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cme-visual-glow {
+    position: absolute;
+    width: 410px;
+    height: 410px;
+    border-radius: 50%;
+    background:
+        radial-gradient(
+            circle,
+            rgba(31,94,255,.13),
+            rgba(31,94,255,.025) 55%,
+            transparent 70%
+        );
+}
+
+.cme-visual-ring {
+    position: absolute;
+    width: 390px;
+    height: 390px;
+    border: 1px solid rgba(31,94,255,.10);
+    border-radius: 50%;
+}
+
+.cme-visual-ring::before {
+    content: "";
+    position: absolute;
+    inset: 32px;
+    border: 1px dashed rgba(31,94,255,.10);
+    border-radius: 50%;
+}
+
+.cme-logo-card {
+    position: relative;
+    z-index: 3;
+    width: 280px;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,.9);
+    border-radius: 30px;
+    background: rgba(255,255,255,.76);
+    backdrop-filter: blur(18px);
+    box-shadow:
+        0 35px 80px rgba(15,34,65,.13),
+        inset 0 1px 0 rgba(255,255,255,.9);
+}
+
+.cme-logo-card img {
+    width: 185px;
+    height: 185px;
+    object-fit: contain;
+    display: block;
+}
+
+.cme-logo-card span {
+    margin-top: 3px;
+    color: #315da8;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .18em;
+}
+
+.cme-float {
+    position: absolute;
+    z-index: 5;
+    min-width: 145px;
+    padding: 13px 15px;
+    border: 1px solid rgba(226,232,240,.9);
+    border-radius: 13px;
+    background: rgba(255,255,255,.93);
+    box-shadow: 0 18px 40px rgba(15,23,42,.10);
+}
+
+.cme-float small {
+    display: block;
+    margin-bottom: 5px;
+    color: #8a94a6;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .12em;
+}
+
+.cme-float strong {
+    color: #0b1930;
+    font-size: 12px;
+}
+
+.cme-float-a {
+    left: 3%;
+    top: 17%;
+}
+
+.cme-float-b {
+    right: 0;
+    top: 48%;
+}
+
+.cme-float-c {
+    left: 9%;
+    bottom: 10%;
+}
+
+.cme-float-icon {
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background: #edf3ff;
+    color: #245bd6;
+    font-weight: 900;
+}
+
+/* ---------- HOW SECTION ---------- */
+
+.cme-section {
+    padding: 100px 48px;
+    background: #fff;
+}
+
+.cme-section-header {
+    max-width: 720px;
+    margin-bottom: 40px;
+}
+
+.cme-kicker {
+    color: #245bd6;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .18em;
+}
+
+.cme-section h2 {
+    margin: 9px 0 13px;
+    color: #071426;
+    font-size: clamp(34px, 4vw, 52px);
+    line-height: 1.04;
+    letter-spacing: -.05em;
+}
+
+.cme-section h2 em {
+    color: #245bd6;
+    font-style: italic;
+}
+
+.cme-section-description {
+    max-width: 650px;
+    margin: 0;
+    color: #667085;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+/* ---------- FEATURE GRID ---------- */
+
+.cme-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.cme-feature-card {
+    position: relative;
+    min-height: 245px;
+    padding: 27px;
+    overflow: hidden;
+    border: 1px solid #e5e9f0;
+    border-radius: 18px;
+    background: linear-gradient(145deg, #fff, #f9fbfe);
+    box-shadow: 0 12px 35px rgba(15,23,42,.045);
+    transition: .22s ease;
+}
+
+.cme-feature-card:hover {
+    transform: translateY(-5px);
+    border-color: #cfdcf2;
+    box-shadow: 0 22px 48px rgba(15,23,42,.09);
+}
+
+.cme-feature-card::after {
+    content: "";
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    right: -70px;
+    bottom: -80px;
+    border-radius: 50%;
+    background: rgba(31,94,255,.05);
+}
+
+.cme-feature-number {
+    color: #9aa5b5;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .15em;
+}
+
+.cme-feature-symbol {
+    width: 45px;
+    height: 45px;
+    display: grid;
+    place-items: center;
+    margin: 28px 0 18px;
+    border-radius: 12px;
+    background: #edf3ff;
+    color: #245bd6;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.cme-feature-card:nth-child(2) .cme-feature-symbol {
+    background: #fff7df;
+    color: #b98211;
+}
+
+.cme-feature-card:nth-child(3) .cme-feature-symbol {
+    background: #eef9f3;
+    color: #238454;
+}
+
+.cme-feature-card h3 {
+    margin: 0 0 9px;
+    color: #0b1930;
+    font-size: 18px;
+    letter-spacing: -.02em;
+}
+
+.cme-feature-card p {
+    max-width: 340px;
+    margin: 0;
+    color: #697586;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+/* ---------- ACCESS NOTE ---------- */
+
+.cme-access {
+    margin-top: 24px;
+    padding: 21px 23px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    border: 1px solid #dce6f6;
+    border-radius: 15px;
+    background:
+        linear-gradient(
+            135deg,
+            #f6f9ff,
+            #ffffff
+        );
+}
+
+.cme-access-icon {
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #245bd6;
+    color: white;
+    font-size: 14px;
+}
+
+.cme-access strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #14213a;
+    font-size: 12px;
+}
+
+.cme-access p {
+    max-width: 900px;
+    margin: 0;
+    color: #718096;
+    font-size: 11px;
+    line-height: 1.65;
+}
+
+/* ---------- PROCESS ---------- */
+
+.cme-process {
+    padding: 100px 48px;
+    background:
+        radial-gradient(
+            circle at 90% 0%,
+            rgba(31,94,255,.18),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            #071426,
+            #0d1e38
+        );
+    color: #fff;
+}
+
+.cme-process .cme-kicker {
+    color: #e7b94f;
+}
+
+.cme-process h2 {
+    color: #fff;
+}
+
+.cme-process .cme-section-description {
+    color: #aeb9c9;
+}
+
+.cme-process-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    margin-top: 42px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 18px;
+}
+
+.cme-process-item {
+    min-height: 205px;
+    padding: 24px;
+    border-right: 1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.025);
+}
+
+.cme-process-item:last-child {
+    border-right: 0;
+}
+
+.cme-process-number {
+    color: #e7b94f;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .15em;
+}
+
+.cme-process-item h3 {
+    margin: 35px 0 9px;
+    color: #fff;
+    font-size: 15px;
+}
+
+.cme-process-item p {
+    margin: 0;
+    color: #9ba9bd;
+    font-size: 11px;
+    line-height: 1.65;
+}
+
+/* ---------- CTA ---------- */
+
+.cme-cta {
+    margin: 70px 48px;
+    padding: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    border: 1px solid #e2e7ef;
+    border-radius: 22px;
+    background:
+        radial-gradient(
+            circle at 90% 10%,
+            rgba(231,185,79,.13),
+            transparent 30%
+        ),
+        #fff;
+    box-shadow: 0 22px 60px rgba(15,23,42,.07);
+}
+
+.cme-cta h2 {
+    margin: 8px 0;
+    color: #071426;
+    font-size: 32px;
+    letter-spacing: -.04em;
+}
+
+.cme-cta p {
+    margin: 0;
+    color: #667085;
+    font-size: 13px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 1050px) {
+
+    .cme-hero {
+        grid-template-columns: 1fr;
+        gap: 35px;
+        padding: 65px 35px;
+    }
+
+    .cme-hero-copy {
+        max-width: 850px;
+    }
+
+    .cme-visual {
+        min-height: 400px;
+    }
+
+    .cme-feature-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .cme-process-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .cme-process-item {
+        border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .cme-process-item:nth-child(2n) {
+        border-right: 0;
+    }
+}
+
+@media (max-width: 700px) {
+
+    .public-main:has(.cme-home) {
+        width: 100% !important;
+    }
+
+    .cme-hero,
+    .cme-section,
+    .cme-process {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .cme-hero {
+        padding-top: 52px;
+        padding-bottom: 55px;
+    }
+
+    .cme-hero h1 {
+        font-size: 46px;
+    }
+
+    .cme-hero-lead {
+        font-size: 14px;
+    }
+
+    .cme-trust-row {
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .cme-visual {
+        min-height: 370px;
+    }
+
+    .cme-logo-card {
+        width: 220px;
+        min-height: 220px;
+    }
+
+    .cme-logo-card img {
+        width: 145px;
+        height: 145px;
+    }
+
+    .cme-visual-ring {
+        width: 300px;
+        height: 300px;
+    }
+
+    .cme-float {
+        min-width: 115px;
+        padding: 10px;
+    }
+
+    .cme-float-a {
+        left: 0;
+    }
+
+    .cme-float-b {
+        right: 0;
+    }
+
+    .cme-float-c {
+        left: 3%;
+    }
+
+    .cme-feature-grid,
+    .cme-process-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cme-process-item {
+        border-right: 0;
+    }
+
+    .cme-cta {
+        margin: 45px 20px;
+        padding: 28px;
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+</style>
+
+<div class="cme-home">
+
+    <!-- =====================================================
+         HERO
+         ===================================================== -->
+
+    <section class="cme-hero">
+
+        <div class="cme-hero-copy">
+
+            <div class="cme-eyebrow">
+                <span class="cme-eyebrow-dot"></span>
+                CME INTERNSHIP & TRAINING
+            </div>
+
+            <h1>
+                Turn learning into
+                <br>
+                <em>real-world experience.</em>
+            </h1>
+
+            <p class="cme-hero-lead">
+                A structured workspace to practise skills, complete meaningful
+                tasks, receive evaluator feedback, and track your progress
+                through your CME programme.
+            </p>
+
+            <div class="cme-actions">
+
+                <a
+                    class="cme-primary-btn"
+                    href="{% url 'login' %}"
+                >
+                    Member sign in
+                    <span>→</span>
+                </a>
+
+                <a
+                    class="cme-secondary-btn"
+                    href="#how"
+                >
+                    Explore the programme
+                    <span>↘</span>
+                </a>
+
+            </div>
+
+            <div class="cme-trust-row">
+
+                <div class="cme-trust-item">
+                    <strong>Structured</strong>
+                    <span>Training</span>
+                </div>
+
+                <div class="cme-trust-divider"></div>
+
+                <div class="cme-trust-item">
+                    <strong>Real</strong>
+                    <span>Tasks</span>
+                </div>
+
+                <div class="cme-trust-divider"></div>
+
+                <div class="cme-trust-item">
+                    <strong>Evaluator</strong>
+                    <span>Feedback</span>
+                </div>
+
+                <div class="cme-trust-divider"></div>
+
+                <div class="cme-trust-item">
+                    <strong>Progress</strong>
+                    <span>Tracking</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- HERO VISUAL -->
+
+        <div class="cme-visual">
+
+            <div class="cme-visual-glow"></div>
+            <div class="cme-visual-ring"></div>
+
+            <div class="cme-logo-card">
+
+                <img
+                    src="{% static 'portal/cme-logo-mark.png' %}"
+                    alt="CME"
+                >
+
+                <span>GROW WITH PURPOSE</span>
+
+            </div>
+
+
+            <div class="cme-float cme-float-a">
+
+                <div class="cme-float-icon">01</div>
+
+                <small>START</small>
+
+                <strong>Learn</strong>
+
+            </div>
+
+
+            <div class="cme-float cme-float-b">
+
+                <div class="cme-float-icon">02</div>
+
+                <small>APPLY</small>
+
+                <strong>Build</strong>
+
+            </div>
+
+
+            <div class="cme-float cme-float-c">
+
+                <div class="cme-float-icon">03</div>
+
+                <small>GROW</small>
+
+                <strong>Progress</strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FEATURES
+         ===================================================== -->
+
+    <section class="cme-section" id="how">
+
+        <div class="cme-section-header">
+
+            <div class="cme-kicker">
+                A CLEAR PATH FORWARD
+            </div>
+
+            <h2>
+                Experience that moves
+                <br>
+                you <em>forward.</em>
+            </h2>
+
+            <p class="cme-section-description">
+                The CME portal brings tasks, evaluation and progress into
+                one controlled workspace so participants can focus on
+                meaningful work and continuous improvement.
+            </p>
+
+        </div>
+
+
+        <div class="cme-feature-grid">
+
+            <article class="cme-feature-card">
+
+                <div class="cme-feature-number">
+                    01
+                </div>
+
+                <div class="cme-feature-symbol">
+                    ↗
+                </div>
+
+                <h3>
+                    Structured tasks
+                </h3>
+
+                <p>
+                    View programme tasks, deadlines, expectations and
+                    submission instructions in one place.
+                </p>
+
+            </article>
+
+
+            <article class="cme-feature-card">
+
+                <div class="cme-feature-number">
+                    02
+                </div>
+
+                <div class="cme-feature-symbol">
+                    ◎
+                </div>
+
+                <h3>
+                    Evaluator feedback
+                </h3>
+
+                <p>
+                    Track review status, read feedback and understand
+                    what needs improvement.
+                </p>
+
+            </article>
+
+
+            <article class="cme-feature-card">
+
+                <div class="cme-feature-number">
+                    03
+                </div>
+
+                <div class="cme-feature-symbol">
+                    ✧
+                </div>
+
+                <h3>
+                    Progress records
+                </h3>
+
+                <p>
+                    Access attendance, announcements, points and
+                    certificate status linked to your account.
+                </p>
+
+            </article>
+
+        </div>
+
+
+        <!-- ACCESS MODEL -->
+
+        <div class="cme-access">
+
+            <div class="cme-access-icon">
+                ▣
+            </div>
+
+            <div>
+
+                <strong>
+                    Private, administrator-managed access
+                </strong>
+
+                <p>
+                    There is no public sign-up or self-registration.
+                    CME administrators create accounts for selected
+                    interns, HR/evaluators and authorised team members.
+                    Use the credentials shared with you by the CME team.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         PROCESS
+         ===================================================== -->
+
+    <section class="cme-process">
+
+        <div class="cme-section-header">
+
+            <div class="cme-kicker">
+                HOW IT WORKS
+            </div>
+
+            <h2>
+                A structured journey,
+                <br>
+                not just a certificate.
+            </h2>
+
+            <p class="cme-section-description">
+                Each participant moves through clearly defined stages
+                managed by the CME team.
+            </p>
+
+        </div>
+
+
+        <div class="cme-process-grid">
+
+            <article class="cme-process-item">
+
+                <div class="cme-process-number">
+                    01
+                </div>
+
+                <h3>
+                    Account access
+                </h3>
+
+                <p>
+                    Authorised CME administrators create and provide
+                    participant credentials.
+                </p>
+
+            </article>
+
+
+            <article class="cme-process-item">
+
+                <div class="cme-process-number">
+                    02
+                </div>
+
+                <h3>
+                    Training
+                </h3>
+
+                <p>
+                    Participants follow their assigned programme
+                    and learning activities.
+                </p>
+
+            </article>
+
+
+            <article class="cme-process-item">
+
+                <div class="cme-process-number">
+                    03
+                </div>
+
+                <h3>
+                    Tasks
+                </h3>
+
+                <p>
+                    Practical assignments provide an opportunity
+                    to apply skills through real work.
+                </p>
+
+            </article>
+
+
+            <article class="cme-process-item">
+
+                <div class="cme-process-number">
+                    04
+                </div>
+
+                <h3>
+                    Evaluation
+                </h3>
+
+                <p>
+                    Submitted work can be reviewed with status,
+                    feedback and awarded points.
+                </p>
+
+            </article>
+
+
+            <article class="cme-process-item">
+
+                <div class="cme-process-number">
+                    05
+                </div>
+
+                <h3>
+                    Progress
+                </h3>
+
+                <p>
+                    Attendance, announcements, points and
+                    certificate status remain connected to the account.
+                </p>
+
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CTA
+         ===================================================== -->
+
+    <section class="cme-cta">
+
+        <div>
+
+            <div class="cme-kicker">
+                CME INTERNSHIP & TRAINING
+            </div>
+
+            <h2>
+                Ready for the workspace?
+            </h2>
+
+            <p>
+                Authorised participants can access the portal
+                with credentials issued by CME.
+            </p>
+
+        </div>
+
+        <a
+            href="{% url 'login' %}"
+            class="cme-primary-btn"
+        >
+            Go to portal
+            <span>→</span>
+        </a>
+
+    </section>
+
+</div>
+
 {% endblock %}

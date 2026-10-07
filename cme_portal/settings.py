@@ -110,12 +110,6 @@ WSGI_APPLICATION = "cme_portal.wsgi.application"
 # --------------------------------------------------
 # DATABASE
 # --------------------------------------------------
-# Production:
-#   Uses Neon PostgreSQL through DATABASE_URL.
-#
-# Local development:
-#   Falls back to SQLite if DATABASE_URL is not present.
-# --------------------------------------------------
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -190,6 +184,15 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_DIRS = []
+
+
+# --------------------------------------------------
+# MEDIA / UPLOADED FILES
+# --------------------------------------------------
+
+MEDIA_URL = "/media/"
+
+MEDIA_ROOT = BASE_DIR / "media"
 
 
 # --------------------------------------------------
