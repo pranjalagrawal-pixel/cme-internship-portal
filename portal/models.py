@@ -13,6 +13,7 @@ class Profile(models.Model):
     ROLE_CHOICES = [
         ("ADMIN", "Administrator"),
         ("FOUNDER", "Founder"),
+        ("CO_FOUNDER", "Co-Founder"),
         ("INTERN_HEAD", "Intern Head"),
         ("HR", "HR / Evaluator"),
         ("CORE_TEAM", "Core Team"),
@@ -64,6 +65,7 @@ class Profile(models.Model):
             prefixes = {
                 "ADMIN": "CME-ADM",
                 "FOUNDER": "CME-FND",
+                "CO_FOUNDER": "CME-CFND",
                 "INTERN_HEAD": "CME-IH",
                 "HR": "CME-HR",
                 "CORE_TEAM": "CME-CORE",

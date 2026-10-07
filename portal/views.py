@@ -33,6 +33,7 @@ from .models import (
 TASK_MANAGEMENT_ROLES = {
     "ADMIN",
     "FOUNDER",
+    "CO_FOUNDER",
     "INTERN_HEAD",
     "CORE_TEAM",
 }
@@ -41,6 +42,7 @@ TASK_MANAGEMENT_ROLES = {
 CORE_TEAM_ACCESS_ROLES = {
     "ADMIN",
     "FOUNDER",
+    "CO_FOUNDER",
     "CORE_TEAM",
 }
 
@@ -48,6 +50,7 @@ CORE_TEAM_ACCESS_ROLES = {
 PROGRAM_MANAGEMENT_ROLES = {
     "ADMIN",
     "FOUNDER",
+    "CO_FOUNDER",
     "INTERN_HEAD",
 }
 
@@ -192,8 +195,8 @@ def dashboard(request):
 
     role = role_of(request.user)
 
-    # Core Team has its own workspace.
-    if role == "CORE_TEAM":
+    # Core Team and Co-Founder have their own workspace.
+    if role in {"CORE_TEAM", "CO_FOUNDER"}:
         return redirect(
             "core_team_dashboard"
         )
@@ -440,6 +443,7 @@ def core_team_dashboard(request):
             role in {
                 "ADMIN",
                 "FOUNDER",
+                "CO_FOUNDER",
             }
             or request.user.is_superuser
         ),
@@ -487,7 +491,9 @@ def tasks(request):
             .filter(is_published=True)
         )
 
-        if role == "INTERN":
+        # Every non-Founder role can receive and submit tasks.
+        # Founder remains management-only.
+        if role != "FOUNDER":
 
             task_list = (
                 task_list
@@ -519,7 +525,7 @@ def tasks(request):
     # Attach the intern's current submission directly
     # to each task so the template can show the
     # correct action/status.
-    if role == "INTERN":
+    if role != "FOUNDER":
 
         submission_by_task = {
             submission.task_id: submission
@@ -555,7 +561,7 @@ def task_create(request):
     if not can_manage_tasks(request.user):
 
         return HttpResponseForbidden(
-            "Only the Founder, Intern Head, Core Team, or Administrator can create tasks."
+            "Only authorized CME task managers can create tasks."
         )
 
     form = TaskForm(
@@ -594,7 +600,7 @@ def task_edit(request, task_id):
     if not can_manage_tasks(request.user):
 
         return HttpResponseForbidden(
-            "Only the Founder, Intern Head, Core Team, or Administrator can edit tasks."
+            "Only authorized CME task managers can edit tasks."
         )
 
     task = get_object_or_404(
@@ -643,7 +649,8 @@ def submit_task(request, task_id):
         is_published=True,
     )
 
-    if role_of(request.user) != "INTERN":
+    # Founder is the only role that cannot submit tasks.
+    if role_of(request.user) == "FOUNDER":
         raise Http404
 
     # Check assignment.
@@ -746,7 +753,7 @@ def submission_review(request, submission_id):
     if not can_manage_tasks(request.user):
 
         return HttpResponseForbidden(
-            "Only the Founder, Intern Head, Core Team, or Administrator can review submissions and award points."
+            "Only authorized CME task managers can review submissions and award points."
         )
 
     submission = get_object_or_404(

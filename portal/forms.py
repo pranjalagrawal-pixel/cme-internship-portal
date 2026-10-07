@@ -10,11 +10,41 @@ class LoginForm(forms.Form):
 class SubmissionForm(forms.ModelForm):
     class Meta:
         model = Submission
-        fields = ["response_text", "attachment_url"]
+        fields = ["response_text", "attachment_url", "attachment"]
         widgets = {
-            "response_text": forms.Textarea(attrs={"rows": 5, "placeholder": "Summarise your work, approach, and outcome..."}),
-            "attachment_url": forms.URLInput(attrs={"placeholder": "https://... (optional)"}),
+            "response_text": forms.Textarea(
+                attrs={
+                    "rows": 8,
+                    "placeholder": "Summarise your work, approach, and outcome...",
+                }
+            ),
+            "attachment_url": forms.URLInput(
+                attrs={
+                    "placeholder": "https://... (optional)"
+                }
+            ),
+            "attachment": forms.ClearableFileInput(attrs={}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        response_text = (
+            cleaned_data.get("response_text") or ""
+        ).strip()
+
+        attachment_url = (
+            cleaned_data.get("attachment_url") or ""
+        ).strip()
+
+        attachment = cleaned_data.get("attachment")
+
+        if not response_text and not attachment_url and not attachment:
+            raise forms.ValidationError(
+                "Please provide a work summary, a project/document link, or upload a file."
+            )
+
+        return cleaned_data
 
 
 class TaskForm(forms.ModelForm):
@@ -31,9 +61,21 @@ class TaskForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["assigned_to"].queryset = self.fields["assigned_to"].queryset.filter(profile__role="INTERN", is_active=True).order_by("username")
+        self.fields["assigned_to"].queryset = (
+            self.fields["assigned_to"]
+            .queryset
+            .exclude(profile__role="FOUNDER")
+            .filter(is_active=True)
+            .order_by("username")
+        )
+
         self.fields["assigned_to"].required = False
-        self.fields["assigned_to"].help_text = "Leave empty to make this task visible to all active interns."
+
+        self.fields["assigned_to"].help_text = (
+            "Select one or more active members. Founder cannot be assigned "
+            "submission tasks. Leave empty to make the task available to "
+            "all non-Founder members."
+        )
         self.fields["points"].min_value = 0
         self.fields["points"].max_value = 10000
 
