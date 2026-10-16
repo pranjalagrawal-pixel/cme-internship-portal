@@ -1,0 +1,9 @@
+
+# Local/runtime files protected by CME ZIP integration
+db.sqlite3
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+media/

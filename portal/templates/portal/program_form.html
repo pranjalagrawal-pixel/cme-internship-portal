@@ -1,0 +1,14 @@
+{% extends 'portal/base.html' %}
+{% block title %}{{ page_title }} | CME{% endblock %}
+{% block breadcrumb %}Programs / {{ page_title }}{% endblock %}
+{% block content %}
+<div class="form-page premium-form-page">
+  <a class="back-link" href="{% url 'programs' %}">← Back to programs</a>
+  <div class="form-hero"><div class="form-hero-icon">✧</div><div><div class="section-kicker">PROGRAM COMMAND CENTER</div><h1>{{ page_title }}</h1><p class="muted">Create a clear program structure. Batch assignments can be added after the program is saved.</p></div></div>
+  <form method="post" class="panel submission-form task-editor premium-form">{% csrf_token %}
+    {% for field in form %}<div class="field-group"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<small class="field-help">{{ field.help_text }}</small>{% endif %}{% for error in field.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>{% endfor %}
+    {% if form.non_field_errors %}{% for error in form.non_field_errors %}<small class="field-error">{{ error }}</small>{% endfor %}{% endif %}
+    <div class="form-actions"><button class="btn btn-primary" type="submit">{{ button_label }} →</button><a class="btn btn-light" href="{% url 'programs' %}">Cancel</a></div>
+  </form>
+</div>
+{% endblock %}

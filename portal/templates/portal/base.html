@@ -1,16 +1,87 @@
-{% load static %}<!doctype html>
-<html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#101d35">
-<meta name="description" content="CME Internship & Training Portal — a managed workspace for interns, evaluators and administrators.">
-<title>{% block title %}CME Internship & Training Portal{% endblock %}</title><link rel="stylesheet" href="{% static 'portal/styles.css' %}"></head><body>
-{% if user.is_authenticated %}<div class="app-shell">
-<aside class="sidebar"><a class="brand" href="{% url 'dashboard' %}"><img class="brand-logo" src="{% static 'portal/cme-logo-mark.png' %}" alt="Concept Made Easy Classes logo"><span><b>CME</b><small>INTERNSHIP PORTAL</small></span></a>
-<div class="side-label">WORKSPACE</div><nav class="side-nav" aria-label="Main navigation">
-<a href="{% url 'dashboard' %}">▦ <span>Dashboard</span></a>{% if user.is_superuser or user.profile.role == 'CORE_TEAM' or user.profile.role == 'FOUNDER' %}<a href="{% url 'core_team_dashboard' %}">✦ <span>Core Team</span></a>{% endif %}<a href="{% url 'programs' %}">✦ <span>Internship programs</span></a><a href="{% url 'tasks' %}">✓ <span>Tasks & submissions</span></a><a href="{% url 'attendance' %}">◷ <span>Attendance</span></a><a href="{% url 'announcements' %}">◈ <span>Announcements</span></a><a href="{% url 'certificates' %}">✧ <span>Certificates</span></a>{% if user.is_superuser %}<a href="{% url 'admin:index' %}">⚙ <span>Admin console</span></a>{% endif %}
-</nav><div class="sidebar-bottom"><div class="help-card"><div class="help-icon">✦</div><b>Keep growing.</b><p>Small steps build meaningful experience.</p></div><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="logout-link" type="submit">↗ <span>Sign out</span></button></form></div></aside>
-<main class="main-area"><header class="topbar"><div class="breadcrumb">CME <span>/</span> {% block breadcrumb %}Workspace{% endblock %}</div><div class="top-user"><div class="avatar">{{ user.first_name|default:user.username|slice:':1'|upper }}</div><div><b>{{ user.get_full_name|default:user.username }}</b><small>{% if user.is_superuser %}Administrator{% else %}{{ user.profile.get_role_display|default:'Portal member' }}{% endif %}</small></div></div></header>
-{% else %}<div class="public-shell"><header class="public-topbar"><a class="brand public-brand" href="{% url 'home' %}"><img class="brand-logo" src="{% static 'portal/cme-logo-mark.png' %}" alt="Concept Made Easy Classes logo"><span><b>CME</b><small>INTERNSHIP & TRAINING</small></span></a><a class="btn btn-dark" href="{% url 'login' %}">Member sign in <span>→</span></a></header><main class="public-main">
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d1b">
+  <meta name="description" content="CME Internship & Training Portal — a secure workspace for internship programs, batches, tasks and progress.">
+  <title>{% block title %}CME Internship & Training Portal{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'portal/styles.css' %}?v=3">
+</head>
+<body>
+{% if user.is_authenticated %}
+<div class="app-shell">
+  <div class="mobile-overlay" data-close-sidebar></div>
+  <aside class="sidebar" id="portal-sidebar">
+    <a class="brand" href="{% url 'dashboard' %}">
+      <span class="brand-logo-shell"><img class="brand-logo" src="{% static 'portal/cme-logo-mark.png' %}" alt="CME logo"></span>
+      <span><b>CME<span class="brand-period">.</span></b><small>INTERNSHIP PORTAL</small></span>
+    </a>
+    <div class="workspace-pill"><span class="workspace-live-dot"></span><span>WORKSPACE</span><span class="workspace-live-label">SECURE</span></div>
+    <nav class="side-nav" aria-label="Main navigation">
+      <a href="{% url 'dashboard' %}" class="{% if request.path == '/dashboard/' %}active{% endif %}"><span class="nav-glyph">▦</span><span>Overview</span></a>
+      {% if user.is_superuser or user.profile.role == 'CORE_TEAM' or user.profile.role == 'FOUNDER' or user.profile.role == 'CO_FOUNDER' %}
+      <a href="{% url 'core_team_dashboard' %}" class="{% if request.path == '/core-team/' %}active{% endif %}"><span class="nav-glyph">✧</span><span>Core Team</span></a>
+      {% endif %}
+      <a href="{% url 'programs' %}" class="{% if '/programs/' in request.path %}active{% endif %}"><span class="nav-glyph">◈</span><span>Programs & batches</span></a>
+      <a href="{% url 'tasks' %}" class="{% if '/tasks/' in request.path %}active{% endif %}"><span class="nav-glyph">✓</span><span>Tasks & submissions</span></a>
+      <a href="{% url 'attendance' %}" class="{% if '/attendance/' in request.path %}active{% endif %}"><span class="nav-glyph">◷</span><span>Attendance</span></a>
+      <a href="{% url 'announcements' %}" class="{% if '/announcements/' in request.path %}active{% endif %}"><span class="nav-glyph">◉</span><span>Announcements</span></a>
+      <a href="{% url 'certificates' %}" class="{% if '/certificates/' in request.path %}active{% endif %}"><span class="nav-glyph">✦</span><span>Certificates</span></a>
+      {% if user.is_superuser %}<a href="{% url 'admin:index' %}"><span class="nav-glyph">⚙</span><span>Admin console</span><span class="nav-external">↗</span></a>{% endif %}
+    </nav>
+    <div class="sidebar-bottom">
+      {% if user.profile.assigned_batch %}
+      <div class="sidebar-batch"><small>YOUR CURRENT BATCH</small><strong>{{ user.profile.assigned_batch.name }}</strong><span>{{ user.profile.assigned_batch.code }}</span></div>
+      {% endif %}
+      <div class="sidebar-support"><div class="support-star">✦</div><strong>Keep moving forward.</strong><p>Every task is a step towards your next milestone.</p></div>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="logout-link" type="submit"><span>↗</span> Sign out</button></form>
+      <div class="sidebar-version">CME PORTAL <span>·</span> SECURE WORKSPACE</div>
+    </div>
+  </aside>
+  <main class="main-area">
+    <header class="topbar">
+      <div class="topbar-left"><button class="mobile-menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" data-open-sidebar>☰</button><div class="breadcrumb">CME <span>/</span> {% block breadcrumb %}Workspace{% endblock %}</div></div>
+      <div class="topbar-right">
+        {% if user.profile.assigned_batch %}<div class="topbar-batch"><span class="workspace-live-dot"></span>{{ user.profile.assigned_batch.code }}</div>{% endif %}
+        <div class="top-user"><div class="avatar">{{ user.first_name|default:user.username|slice:':1'|upper }}</div><div class="top-user-meta"><b>{{ user.get_full_name|default:user.username }}</b><small>{% if user.is_superuser %}Administrator{% else %}{{ user.profile.get_role_display|default:'Portal member' }}{% endif %}</small></div></div>
+      </div>
+    </header>
+    <div class="content">
+{% else %}
+<div class="public-shell">
+  <header class="public-topbar">
+    <a class="brand public-brand" href="{% url 'home' %}"><img class="brand-logo" src="{% static 'portal/cme-logo-mark.png' %}" alt="CME logo"><span><b>CME<span class="brand-period">.</span></b><small>INTERNSHIP & TRAINING</small></span></a>
+    <a class="btn btn-dark" href="{% url 'login' %}">Member sign in <span>→</span></a>
+  </header>
+  <main class="public-main"><div class="public-content">
 {% endif %}
-<div class="{% if user.is_authenticated %}content{% else %}public-content{% endif %}">{% if messages %}{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}{% endif %}{% block content %}{% endblock %}<footer class="footer {% if not user.is_authenticated %}public-footer{% endif %}">© {% now "Y" %} Concept Made Easy Classes <span>Managed access · Learning · Progress</span></footer></div>
-{% if user.is_authenticated %}</main></div>{% else %}</main></div>{% endif %}
-</body></html>
+      {% if messages %}{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}{% endif %}
+      {% block content %}{% endblock %}
+{% if user.is_authenticated %}
+      <footer class="footer">© {% now "Y" %} Concept Made Easy Classes <span>Learn · Build · Grow</span></footer>
+    </div>
+  </main>
+</div>
+{% else %}
+    <footer class="footer public-footer">© {% now "Y" %} Concept Made Easy Classes <span>Managed access · Learning · Progress</span></footer>
+  </div></main>
+</div>
+{% endif %}
+<script>
+(function(){
+  const sidebar=document.getElementById('portal-sidebar');
+  const openButton=document.querySelector('[data-open-sidebar]');
+  const overlay=document.querySelector('[data-close-sidebar]');
+  function close(){if(sidebar){sidebar.classList.remove('sidebar-open');document.body.classList.remove('sidebar-visible');if(openButton)openButton.setAttribute('aria-expanded','false');}}
+  if(openButton&&sidebar){openButton.addEventListener('click',function(){const isOpen=sidebar.classList.toggle('sidebar-open');document.body.classList.toggle('sidebar-visible',isOpen);openButton.setAttribute('aria-expanded',String(isOpen));});}
+  if(overlay)overlay.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+})();
+</script>
+</body>
+</html>

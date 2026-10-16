@@ -1,7 +1,71 @@
 {% extends 'portal/base.html' %}
-{% block title %}Internship Programs | CME{% endblock %}
-{% block breadcrumb %}Internship programs{% endblock %}
+{% block title %}Programs & Batches | CME{% endblock %}
+{% block breadcrumb %}Programs & batches{% endblock %}
 {% block content %}
-<div class="page-heading"><div><div class="section-kicker">LEARN · BUILD · GROW</div><h1>Internship programs</h1><p class="muted">Explore CME training tracks and keep your learning journey organised.</p></div>{% if can_manage_programs %}<a class="btn btn-primary" href="{% url 'admin:portal_internshipprogram_add' %}">＋ Manage programs</a>{% endif %}</div>
-<div class="program-grid">{% for program in programs %}<article class="program-card"><div class="program-card-top"><span class="program-icon">✦</span><span class="program-status status-{{ program.status|lower }}">{{ program.get_status_display }}</span></div><div class="section-kicker">{{ program.domain }}</div><h2>{{ program.title }}</h2><p class="program-summary">{{ program.short_description }}</p><div class="program-meta"><span>◷ {{ program.duration_weeks }} week{{ program.duration_weeks|pluralize }}</span>{% if program.start_date %}<span>↗ Starts {{ program.start_date|date:"d M Y" }}</span>{% endif %}</div><details class="program-details"><summary>Program details</summary><p>{{ program.description|linebreaksbr }}</p>{% if program.eligibility %}<h3>Eligibility</h3><p>{{ program.eligibility|linebreaksbr }}</p>{% endif %}</details></article>{% empty %}<div class="panel empty-programs"><div class="empty-symbol">✦</div><h2>No programs listed yet</h2><p class="muted">CME's team will publish internship and training programs here when they are ready.</p>{% if can_manage_programs %}<a class="btn btn-primary" href="{% url 'admin:portal_internshipprogram_add' %}">Create first program</a>{% endif %}</div>{% endfor %}</div>
+<section class="programs-page">
+  <div class="page-heading programs-heading">
+    <div>
+      <div class="section-kicker">CME · LEARNING & DEVELOPMENT</div>
+      <h1>{% if can_manage_programs %}Programs <span class="heading-accent">& batches</span>{% else %}Your internship <span class="heading-accent">workspace</span>{% endif %}</h1>
+      <p class="muted">{% if can_manage_programs %}Manage every program and its cohorts from one clear command center.{% else %}Everything here is scoped to the program and batch assigned to your account.{% endif %}</p>
+    </div>
+    {% if can_manage_programs %}
+      <a class="btn btn-primary" href="{% url 'program_create' %}"><span class="btn-plus">＋</span> Create program</a>
+    {% endif %}
+  </div>
+
+  {% if assigned_batch and not can_manage_programs %}
+  <div class="assignment-banner">
+    <div class="assignment-symbol">✦</div>
+    <div class="assignment-copy"><small>YOUR ASSIGNMENT</small><strong>{{ assigned_program.title }}</strong><span>{{ assigned_batch.name }} <i>·</i> {{ assigned_batch.code }}</span></div>
+    <div class="assignment-status"><span class="status-dot"></span>{{ assigned_batch.get_status_display }}</div>
+  </div>
+  {% elif needs_assignment %}
+  <div class="panel assignment-empty">
+    <div class="empty-symbol">✦</div><h2>Your program is being set up</h2>
+    <p class="muted">Your account has not been assigned to an internship program yet. Please contact the CME administrator. Other programs and batches are hidden from this workspace.</p>
+  </div>
+  {% endif %}
+
+  <div class="program-grid batch-program-grid">
+  {% for program in programs %}
+    <article class="program-card program-card-premium">
+      <div class="program-card-top">
+        <div class="program-icon"><span>✧</span></div>
+        <span class="program-status status-{{ program.status|lower }}">{{ program.get_status_display }}</span>
+      </div>
+      <div class="section-kicker">{{ program.domain }}</div>
+      <h2>{{ program.title }}</h2>
+      <p class="program-summary">{{ program.short_description }}</p>
+      <div class="program-meta">
+        <span>◷ {{ program.duration_weeks }} week{{ program.duration_weeks|pluralize }}</span>
+        {% if program.start_date %}<span>↗ {{ program.start_date|date:"d M Y" }}</span>{% endif %}
+      </div>
+      {% if program.description %}<details class="program-details"><summary>Explore program details <span>↗</span></summary><p>{{ program.description|linebreaksbr }}</p>{% if program.eligibility %}<h3>Eligibility</h3><p>{{ program.eligibility|linebreaksbr }}</p>{% endif %}</details>{% endif %}
+
+      {% if can_manage_programs %}<div class="program-card-actions"><a class="text-link" href="{% url 'program_edit' program.id %}">Edit program details ↗</a></div>{% endif %}
+      <div class="batch-section">
+        <div class="batch-section-heading"><div><span class="section-kicker">COHORTS</span><h3>{% if can_manage_programs %}Program batches{% else %}Your batch{% endif %}</h3></div>{% if can_manage_programs %}<a class="text-link" href="{% url 'batch_create' program.id %}">＋ Add batch</a>{% endif %}</div>
+        {% if can_manage_programs %}
+          {% for batch in program.batches.all %}
+          <div class="batch-card">
+            <div class="batch-mark">B</div><div class="batch-copy"><strong>{{ batch.name }}</strong><span>{{ batch.code }}</span><small>{% if batch.start_date %}{{ batch.start_date|date:"d M Y" }}{% else %}Start date not set{% endif %}{% if batch.end_date %} — {{ batch.end_date|date:"d M Y" }}{% endif %}</small></div><span class="batch-status batch-{{ batch.status|lower }}">{{ batch.get_status_display }}</span>
+          </div>
+          {% empty %}<div class="batch-empty">No batches created for this program yet.</div>{% endfor %}
+        {% elif assigned_batch and assigned_batch.program_id == program.id %}
+          <div class="batch-card batch-card-current"><div class="batch-mark">B</div><div class="batch-copy"><strong>{{ assigned_batch.name }}</strong><span>{{ assigned_batch.code }}</span><small>{% if assigned_batch.start_date %}{{ assigned_batch.start_date|date:"d M Y" }}{% else %}Start date not set{% endif %}{% if assigned_batch.end_date %} — {{ assigned_batch.end_date|date:"d M Y" }}{% endif %}</small></div><span class="batch-status batch-{{ assigned_batch.status|lower }}">{{ assigned_batch.get_status_display }}</span></div>
+        {% else %}
+          <div class="batch-empty">Your batch assignment has not been completed. Contact the CME administrator.</div>
+        {% endif %}
+      </div>
+    </article>
+  {% empty %}
+    {% if not needs_assignment %}<div class="panel empty-programs"><div class="empty-symbol">✦</div><h2>{% if can_manage_programs %}Your program hub is ready{% else %}No program assigned yet{% endif %}</h2><p class="muted">{% if can_manage_programs %}Create a program, add its batches, then assign participants through the admin console.{% else %}CME will show your program here after an administrator assigns it to your profile.{% endif %}</p>{% if can_manage_programs %}<a class="btn btn-primary" href="{% url 'program_create' %}">Create first program</a>{% endif %}</div>{% endif %}
+  {% endfor %}
+  </div>
+
+  {% if can_manage_programs %}
+  <div class="program-admin-note"><span class="note-icon">i</span><div><strong>Keep every cohort organised</strong><p>Create batches from the batch admin screen, then assign each intern through their Profile. Set each task and announcement's program and batch so it appears only in the correct workspace. Existing historical records are retained.</p></div><a class="text-link" href="{% url 'admin:index' %}">Open admin console ↗</a></div>
+  {% endif %}
+</section>
 {% endblock %}

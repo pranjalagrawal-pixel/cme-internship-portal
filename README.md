@@ -68,3 +68,21 @@ python manage.py test
 ## Core Team workspace
 
 The connected Core Team workspace is available at `/core-team/`. Core Team accounts must be created by an authorized CME administrator (there is no public sign-up): create a user in Django Admin, then create/update their Profile with role `Core Team`. The account's first login uses the username/email and password issued by CME. Run `python manage.py migrate` after updating the project.
+
+
+## Program and batch isolation (added)
+
+The portal now supports a program → batch → participant structure:
+- Create an internship program in **Admin console → Internship programs**.
+- Create batches in **Admin console → Internship batches**. Batch codes must be unique within a program.
+- Open each intern's **Profile** and assign both `Assigned program` and `Assigned batch`. The selected batch must belong to the selected program.
+- When creating tasks, choose a program and optionally a batch. Program-level tasks (no batch selected) are visible to assigned members of that program; batch tasks are visible only to members assigned to that exact batch.
+- Scope announcements, attendance records, and certificates to the correct program/batch in the admin console.
+- Founder / Co-Founder / Administrator can view the complete program catalogue. Interns see only their assigned program and batch. Other staff work within their assigned program/batch.
+- If an intern is not assigned yet, their program/task workspace is empty and asks them to contact an administrator; it does not expose other cohorts.
+
+### Data preservation
+This source ZIP intentionally does **not** include `db.sqlite3`; your current database must stay in its existing location and must not be replaced with a blank database. Migration `0006_program_batches.py` is additive: it creates the batch table and adds nullable program/batch links. It does not delete existing users, programs, tasks, submissions, attendance, announcements, or certificates. Existing historical records remain in the database; because legacy records have no batch association, they are not automatically shown inside a specific intern's scoped workspace. An authorized administrator can associate relevant historical records with the correct program/batch. **Back up the existing `db.sqlite3` before deploying and run `python manage.py migrate` against that same database. Do not replace the database file with a blank one.**
+
+### UI refresh
+The refreshed interface keeps CME's dark navy identity with restrained champagne-gold highlights, refined typography, improved program/batch cards, assignment status, responsive tables, and a mobile navigation drawer. No demo intern data or fabricated performance metrics are seeded.
