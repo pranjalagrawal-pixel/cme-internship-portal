@@ -86,3 +86,22 @@ This source ZIP intentionally does **not** include `db.sqlite3`; your current da
 
 ### UI refresh
 The refreshed interface keeps CME's dark navy identity with restrained champagne-gold highlights, refined typography, improved program/batch cards, assignment status, responsive tables, and a mobile navigation drawer. No demo intern data or fabricated performance metrics are seeded.
+
+
+## Vercel deployment (static assets + database)
+
+1. Import the repository/project into Vercel and use the repository root that contains `manage.py`, `vercel.json`, and `build_files.sh`.
+2. The included `vercel.json` routes requests to the Django WSGI app. `build_files.sh` runs `collectstatic`; WhiteNoise serves collected CSS, images, and other static assets from `/static/`.
+3. Set these Vercel environment variables for Preview and Production as appropriate:
+   - `DJANGO_SECRET_KEY`: a long, random secret generated privately.
+   - `DJANGO_DEBUG`: `False`.
+   - `DJANGO_ALLOWED_HOSTS`: `.vercel.app` plus your custom domain if any.
+   - `DJANGO_CSRF_TRUSTED_ORIGINS`: comma-separated full origins, e.g. `https://your-project.vercel.app`.
+   - `DATABASE_URL`: a managed PostgreSQL connection string. Keep it secret; never commit it.
+   - `CME_FOUNDER_PASSWORD`: set privately only if you want the deployment's optional `create_founder` command to set the founder account password. If absent, that command safely skips.
+4. Run `python manage.py migrate` against the configured production database after backing up/importing any data that must be retained. Vercel's filesystem is ephemeral: do not rely on SQLite for durable production data. The project ZIP intentionally excludes `db.sqlite3` to avoid overwriting your existing local database.
+5. Deploy a Preview first. Verify `/static/portal/styles.css` returns CSS (not HTML), `/static/portal/cme-logo-mark.png` returns the image, and sign-in/dashboard/program/task permissions work before promoting to Production.
+
+### Database safety
+
+Local development continues to use `db.sqlite3` unless `DATABASE_URL` is set. Never delete or replace your current SQLite file. For an existing production deployment, configure the same managed database that contains the records you intend to preserve before running migrations; a fresh empty database will not contain your existing accounts or records.

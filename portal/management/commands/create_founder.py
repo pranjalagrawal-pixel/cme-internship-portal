@@ -1,57 +1,37 @@
 import os
 
-from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand, CommandError
 from portal.models import Profile
 
 
 class Command(BaseCommand):
-    help = "Create or update the permanent CME Founder account."
+    help = "Create or update the configured CME founder account when credentials are provided."
 
     def handle(self, *args, **options):
-        User = get_user_model()
-
-        username = os.getenv("CME_FOUNDER_USERNAME", "pranjal26")
-        email = os.getenv(
-            "CME_FOUNDER_EMAIL",
-            "conceptmadeeasyclasses@gmail.com",
-        )
-        password = os.getenv("CME_FOUNDER_PASSWORD")
-
+        password = os.getenv("CME_FOUNDER_PASSWORD", "")
         if not password:
-            self.stdout.write(
-                self.style.ERROR(
-                    "CME_FOUNDER_PASSWORD environment variable is missing."
-                )
-            )
+            self.stdout.write(self.style.WARNING(
+                "CME_FOUNDER_PASSWORD is not set; founder bootstrap skipped."
+            ))
             return
+
+        User = get_user_model()
+        username = os.getenv("CME_FOUNDER_USERNAME", "pranjal26").strip()
+        email = os.getenv("CME_FOUNDER_EMAIL", "").strip()
+        if not username:
+            raise CommandError("CME_FOUNDER_USERNAME cannot be empty.")
 
         user, created = User.objects.get_or_create(
             username=username,
-            defaults={
-                "email": email,
-                "is_active": True,
-                "is_staff": True,
-                "is_superuser": True,
-            },
+            defaults={"email": email, "first_name": "CME", "last_name": "Founder"},
         )
-
-        user.email = email
-        user.is_active = True
+        if email and user.email != email:
+            user.email = email
         user.is_staff = True
         user.is_superuser = True
         user.set_password(password)
         user.save()
-
-        profile, _ = Profile.objects.get_or_create(user=user)
-
-        profile.role = "FOUNDER"
-        profile.save()
-
+        Profile.objects.update_or_create(user=user, defaults={"role": "FOUNDER"})
         action = "created" if created else "updated"
-
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"CME Founder account {action} successfully: {username}"
-            )
-        )
+        self.stdout.write(self.style.SUCCESS(f"Founder account {action} from environment configuration."))
