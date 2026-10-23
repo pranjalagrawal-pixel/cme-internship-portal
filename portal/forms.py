@@ -2,6 +2,10 @@ from django import forms
 from .models import Submission, Task
 
 
+# Keep uploads below serverless request-body limits (multipart overhead included).
+MAX_SUBMISSION_FILE_SIZE = 3 * 1024 * 1024  # 3 MiB
+
+
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=150, widget=forms.TextInput(attrs={"placeholder": "Username or email", "autocomplete": "username"}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={"placeholder": "Your password", "autocomplete": "current-password"}))
@@ -23,8 +27,17 @@ class SubmissionForm(forms.ModelForm):
                     "placeholder": "https://... (optional)"
                 }
             ),
-            "attachment": forms.ClearableFileInput(attrs={}),
+            "attachment": forms.ClearableFileInput(attrs={"accept": ".pdf,.doc,.docx,.ppt,.pptx,.txt,.png,.jpg,.jpeg,.zip"}),
         }
+
+    def clean_attachment(self):
+        attachment = self.cleaned_data.get("attachment")
+        if attachment and attachment.size > MAX_SUBMISSION_FILE_SIZE:
+            raise forms.ValidationError(
+                "This file is larger than 3 MB. Upload it to Google Drive or GitHub "
+                "and paste a shareable link above, or compress the file and try again."
+            )
+        return attachment
 
     def clean(self):
         cleaned_data = super().clean()

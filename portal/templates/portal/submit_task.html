@@ -1,228 +1,115 @@
 {% extends 'portal/base.html' %}
 
 {% block title %}Submit task | CME Portal{% endblock %}
-
 {% block breadcrumb %}Tasks / Submit{% endblock %}
 
 {% block content %}
-
-<a class="back-link" href="{% url 'tasks' %}">
-  ← Back to tasks
-</a>
+<a class="back-link" href="{% url 'tasks' %}">← Back to tasks</a>
 
 <div class="form-page">
-
   <div class="section-kicker">TASK DETAILS</div>
+  <h1>{% if is_revision %}Resubmit: {{ task.title }}{% else %}{{ task.title }}{% endif %}</h1>
 
-  <h1>
-    {% if is_revision %}
-      Resubmit: {{ task.title }}
-    {% else %}
-      {{ task.title }}
-    {% endif %}
-  </h1>
-
-
-  <!-- Task meta -->
   <div class="task-meta">
-
-    <span class="priority priority-{{ task.priority|lower }}">
-      {{ task.get_priority_display }} priority
-    </span>
-
-    <span>
-      {{ task.points }} points
-    </span>
-
-    <span>
-      Due
-      {{ task.due_date|date:'d M Y'|default:'No deadline' }}
-    </span>
-
+    <span class="priority priority-{{ task.priority|lower }}">{{ task.get_priority_display }} priority</span>
+    <span>{{ task.points }} points</span>
+    <span>Due {{ task.due_date|date:'d M Y'|default:'No deadline' }}</span>
   </div>
 
-
-  <!-- Task instructions -->
   <div class="panel task-description">
-
     <h3>Instructions</h3>
-
-    <p>
-      {{ task.description|linebreaksbr }}
-    </p>
-
+    <p>{{ task.description|linebreaksbr }}</p>
   </div>
 
-
-  <!-- Revision feedback -->
-  {% if is_revision and existing_submission.evaluator_feedback %}
-
+  {% if is_revision and submission.evaluator_feedback %}
   <div class="access-note" style="margin-bottom:18px;">
-
-    <div class="access-note-icon">
-      !
-    </div>
-
+    <div class="access-note-icon">!</div>
     <div>
-
       <b>Revision requested by evaluator</b>
-
-      <p>
-        {{ existing_submission.evaluator_feedback|linebreaksbr }}
-      </p>
-
+      <p>{{ submission.evaluator_feedback|linebreaksbr }}</p>
     </div>
-
   </div>
-
   {% endif %}
 
-
-  <!-- Submission form -->
-  <form
-    method="post"
-    enctype="multipart/form-data"
-    class="panel submission-form"
-  >
-
+  <form method="post" enctype="multipart/form-data" class="panel submission-form" id="task-submission-form">
     {% csrf_token %}
-
-
-    <h2>
-      {% if is_revision %}
-        Resubmit your work
-      {% else %}
-        Submit your work
-      {% endif %}
-    </h2>
-
+    <h2>{% if is_revision %}Resubmit your work{% else %}Submit your work{% endif %}</h2>
     <p class="muted">
-      Add a short explanation of your work and optionally provide
-      a project link or upload your submission file.
+      Add a short explanation of your work and optionally provide a project link or upload a small file.
+      For larger files, use Google Drive or GitHub and paste a shareable link.
     </p>
 
-
-    <!-- Non-field errors -->
     {% if form.non_field_errors %}
-
-      {% for error in form.non_field_errors %}
-
-        <small class="field-error">
-          {{ error }}
-        </small>
-
-      {% endfor %}
-
+      {% for error in form.non_field_errors %}<small class="field-error">{{ error }}</small>{% endfor %}
     {% endif %}
 
-
-    <!-- Work summary -->
-    <label for="id_response_text">
-      Work summary
-    </label>
-
+    <label for="id_response_text">Work summary</label>
     {{ form.response_text }}
+    {% for e in form.response_text.errors %}<small class="field-error">{{ e }}</small>{% endfor %}
 
-    {% for e in form.response_text.errors %}
-
-      <small class="field-error">
-        {{ e }}
-      </small>
-
-    {% endfor %}
-
-
-    <!-- External link -->
-    <label for="id_attachment_url">
-      Attachment or project link
-      <span class="muted">(optional)</span>
-    </label>
-
+    <label for="id_attachment_url">Attachment or project link <span class="muted">(optional)</span></label>
     {{ form.attachment_url }}
-
     <small class="muted">
-      You can add a GitHub repository, Google Drive,
-      Canva, live website, Figma, or other project link.
+      GitHub repository, Google Drive, Canva, live website, Figma, or another project link.
+      Make sure CME reviewers have permission to open it.
     </small>
+    {% for e in form.attachment_url.errors %}<small class="field-error">{{ e }}</small>{% endfor %}
 
-    {% for e in form.attachment_url.errors %}
-
-      <small class="field-error">
-        {{ e }}
-      </small>
-
-    {% endfor %}
-
-
-    <!-- File upload -->
-    <label for="id_attachment">
-      Upload file
-      <span class="muted">(optional)</span>
-    </label>
-
+    <label for="id_attachment">Upload file <span class="muted">(optional, maximum 3 MB)</span></label>
     {{ form.attachment }}
-
-    <small class="muted">
-      Upload your report, presentation, project file,
-      image, ZIP, or other supported file.
+    <small class="muted" id="attachment-size-help">
+      Files larger than 3 MB must be shared as a Google Drive or GitHub link to avoid the Vercel request-size limit.
     </small>
+    {% for e in form.attachment.errors %}<small class="field-error">{{ e }}</small>{% endfor %}
 
-    {% for e in form.attachment.errors %}
-
-      <small class="field-error">
-        {{ e }}
-      </small>
-
-    {% endfor %}
-
-
-    <!-- Existing file when revising -->
-    {% if existing_submission and existing_submission.attachment %}
-
-      <div class="access-note" style="margin-top:16px;">
-
-        <div class="access-note-icon">
-          ↗
-        </div>
-
-        <div>
-
-          <b>Previous uploaded file</b>
-
-          <p>
-            <a
-              class="text-link"
-              href="{{ existing_submission.attachment.url }}"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open previous file →
-            </a>
-          </p>
-
-        </div>
-
+    {% if submission and submission.attachment %}
+    <div class="access-note" style="margin-top:16px;">
+      <div class="access-note-icon">↗</div>
+      <div>
+        <b>Previous uploaded file</b>
+        <p><a class="text-link" href="{{ submission.attachment.url }}" target="_blank" rel="noopener noreferrer">Open previous file →</a></p>
       </div>
-
+    </div>
     {% endif %}
 
-
-    <!-- Submit button -->
-    <button
-      class="btn btn-dark"
-      type="submit"
-    >
-
-      {% if is_revision %}
-        Resubmit for review →
-      {% else %}
-        Submit for review →
-      {% endif %}
-
+    <small class="field-error" id="client-file-error" role="alert" hidden></small>
+    <button class="btn btn-dark" type="submit" id="submit-task-button">
+      {% if is_revision %}Resubmit for review →{% else %}Submit for review →{% endif %}
     </button>
-
   </form>
-
 </div>
 
+<script>
+(function () {
+  const form = document.getElementById("task-submission-form");
+  const fileInput = document.getElementById("id_attachment");
+  const error = document.getElementById("client-file-error");
+  const button = document.getElementById("submit-task-button");
+  const maxBytes = 3 * 1024 * 1024;
+
+  if (!form || !fileInput || !error || !button) return;
+
+  function validateFile() {
+    const file = fileInput.files && fileInput.files[0];
+    if (file && file.size > maxBytes) {
+      error.textContent = "This file is larger than 3 MB. Upload it to Google Drive or GitHub and paste a shareable link above.";
+      error.hidden = false;
+      button.disabled = true;
+      return false;
+    }
+    error.textContent = "";
+    error.hidden = true;
+    button.disabled = false;
+    return true;
+  }
+
+  fileInput.addEventListener("change", validateFile);
+  form.addEventListener("submit", function (event) {
+    if (!validateFile()) {
+      event.preventDefault();
+      fileInput.focus();
+    }
+  });
+})();
+</script>
 {% endblock %}
