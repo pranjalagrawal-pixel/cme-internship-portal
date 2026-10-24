@@ -1,0 +1,10 @@
+﻿__pycache__/
+*.py[cod]
+oauth-client.json
+client_secret*.json
+token.json
+token.pickle
+credentials.json
+.env
+.env.*
+!.env.example

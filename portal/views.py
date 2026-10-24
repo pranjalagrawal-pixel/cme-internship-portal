@@ -1,3 +1,4 @@
+from .google_drive import upload_submission
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -692,27 +693,51 @@ def submit_task(request, task_id):
     )
 
     if request.method == "POST" and form.is_valid():
+        uploaded_file = form.cleaned_data.get("attachment")
+        drive_url = None
 
-        submission = form.save(
-            commit=False
-        )
+        if uploaded_file:
+            try:
+                drive_url = upload_submission(
+                    uploaded_file,
+                    uploaded_file.name,
+                )
+            except Exception:
+                import logging
+                logging.getLogger(__name__).exception(
+                    "Google Drive upload failed"
+                )
+                messages.error(
+                    request,
+                    "Google Drive upload failed. Please try again.",
+                )
+                return render(
+                    request,
+                    "portal/submit_task.html",
+                    {
+                        "task": task,
+                        "form": form,
+                        "submission": existing,
+                        "is_revision": (
+                            existing is not None
+                            and existing.status == "REVISION"
+                        ),
+                    },
+                )
 
+        submission = form.save(commit=False)
         submission.task = task
         submission.intern = request.user
 
-        # Resubmission after revision.
+        if uploaded_file:
+            submission.attachment_url = drive_url
+            submission.attachment = None
+
         if existing:
-
             submission.status = "SUBMITTED"
-
             submission.evaluator_feedback = ""
-
             submission.awarded_points = 0
-
             submission.reviewed_at = None
-
-            # auto_now_add does not update existing records,
-            # therefore explicitly refresh the submission time.
             submission.submitted_at = timezone.now()
 
         submission.save()
@@ -725,7 +750,6 @@ def submit_task(request, task_id):
                 else "Your task submission has been received."
             ),
         )
-
         return redirect("tasks")
 
     return render(
