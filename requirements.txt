@@ -1,6 +1,7 @@
 Django>=5.1,<6.0
 dj-database-url>=2.2,<3.0
-psycopg[binary]>=3.2,<4.0google-api-python-client>=2.150,<3.0
+psycopg[binary]>=3.2,<4.0
+google-api-python-client>=2.150,<3.0
 google-auth>=2.35,<3.0
 google-auth-httplib2>=0.2,<1.0
 google-auth-oauthlib>=1.2,<2.0
